@@ -1,0 +1,36 @@
+name: Terraform Plan
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.0.0
+
+    - name: Terraform Init
+      run: terraform init
+
+    - name: Terraform Validate
+      run: terraform validate
+
+    - name: Terraform Plan
+      run: terraform plan -out=plan.out
+      env:
+        TF_VAR_example_variable: ${{ secrets.TF_VAR_EXAMPLE_VARIABLE }}
+
+    - name: Upload Plan
+      uses: actions/upload-artifact@v2
+      with:
+        name: plan
+        path: plan.out
